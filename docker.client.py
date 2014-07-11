@@ -18,31 +18,31 @@ class MyHandler(BaseHTTPRequestHandler):
             self.end_headers()
 
             if self.path.endswith("docker/containers"):
-                self.write(c.container())
+                self.wfile.write(c.container())
                 pass
             elif self.path.endswith("docker/info"):
-                self.write(c.info())
+                self.wfile.write(c.info())
                 pass
             elif self.path.endswith("host/cpu"):
-                self.write("host/cpu")
+                self.wfile.write("host/cpu")
                 pass
             elif self.path.endswith("host/memory"):
-                self.write(self.path)
+                self.wfile.write(self.path)
                 pass
             elif self.path.endswith("host/network"):
-                self.write(self.path)
+                self.wfile.write(self.path)
                 pass
             elif self.path.endswith("host/info"):
-                self.write(self.path)
+                self.wfile.write(self.path)
                 pass
             else:
                 self.send_response(404)
                 self.send_header('Content-type', 'application/json')
                 self.end_headers()
-                self.write("{ \"msg\" : \"api not supported!\"}")
+                self.wfile.write("{ \"msg\" : \"api not supported!\"}")
             return
         except IOError:
-                self.send_error(404,'File Not Found: %s' % self.path)
+	    self.send_error(404,'File Not Found: %s' % self.path)
 
 def main():
     c = docker.Client(base_url='unix://var/run/docker.sock',
@@ -52,9 +52,9 @@ def main():
     print c.containers()
 
     try:
-        so = se = open(sys.path[0] + "/../../logs/icmc-agent.log", 'a')
-        sys.stdout = so
-        sys.stderr = se
+        #so = se = open(sys.path[0] + "/../../logs/icmc-agent.log", 'a')
+        #sys.stdout = so
+        #sys.stderr = se
         #sys.stdin = si
         server = HTTPServer(('', 21000), MyHandler)
         print 'started httpserver...'
