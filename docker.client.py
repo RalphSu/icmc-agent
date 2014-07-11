@@ -18,7 +18,7 @@ class MyHandler(BaseHTTPRequestHandler):
             self.end_headers()
 
             if self.path.endswith("docker/containers"):
-                self.wfile.write(c.container())
+                self.wfile.write(c.containers())
                 pass
             elif self.path.endswith("docker/info"):
                 self.wfile.write(c.info())
@@ -45,11 +45,6 @@ class MyHandler(BaseHTTPRequestHandler):
 	    self.send_error(404,'File Not Found: %s' % self.path)
 
 def main():
-    c = docker.Client(base_url='unix://var/run/docker.sock',
-                      version='1.12',
-                      timeout=10)
-    print c.info()
-    print c.containers()
 
     try:
         #so = se = open(sys.path[0] + "/../../logs/icmc-agent.log", 'a')
