@@ -2,12 +2,17 @@
 import os, sys, platform, subprocess
 import string,cgi,time
 from os import curdir, sep
+from sysinfo import System, CPU, RAM
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
-import docker
+#import docker
 
-c = docker.Client(base_url='unix://var/run/docker.sock',
-                  version='1.12',
-                  timeout=10)
+#c = docker.Client(base_url='unix://var/run/docker.sock',
+#                  version='1.12',
+#                  timeout=10)
+
+sys = System()
+cpu = CPU()
+ram = RAM()
 
 class MyHandler(BaseHTTPRequestHandler):
 
@@ -24,16 +29,16 @@ class MyHandler(BaseHTTPRequestHandler):
                 self.wfile.write(c.info())
                 pass
             elif self.path.endswith("host/cpu"):
-                self.wfile.write("host/cpu")
+                self.wfile.write(self._get_host_cpu())
                 pass
             elif self.path.endswith("host/memory"):
-                self.wfile.write(self.path)
+                self.wfile.write(self._get_host_memory())
                 pass
             elif self.path.endswith("host/network"):
                 self.wfile.write(self.path)
                 pass
             elif self.path.endswith("host/info"):
-                self.wfile.write(self.path)
+                self.wfile.write(self._get_host_info())
                 pass
             else:
                 self.send_response(404)
@@ -42,7 +47,19 @@ class MyHandler(BaseHTTPRequestHandler):
                 self.wfile.write("{ \"msg\" : \"api not supported!\"}")
             return
         except IOError:
-	    self.send_error(404,'File Not Found: %s' % self.path)
+	       self.send_error(404,'File Not Found: %s' % self.path)
+
+    def _get_host_cpu(self):
+        return cpu.info()
+
+    def _get_host_memory(self):
+        return ram.info()
+
+    def _get_host_network(self):
+        pass
+
+    def _get_host_info(self):
+        return sys.info()
 
 def main():
 
@@ -60,5 +77,3 @@ def main():
 
 if __name__ == '__main__':
         main()
-
-
