@@ -3,6 +3,7 @@
 import os
 import re
 import platform
+import threading
 from datetime import timedelta
 
 class System(object):
@@ -105,7 +106,8 @@ class CPU(object):
             return True
 
 class Network(object):
-    def __init__():
+    def __init__(self):
+	params={}
         params['refresh_rate']=10
         params['target_device']='eth0'
         self.device=params['target_device']

@@ -2,10 +2,10 @@
 import os, sys, platform, subprocess
 import string,cgi,time
 from os import curdir, sep
-from sysinfo import System, CPU, RAM
+from sysinfo import System, CPU, RAM, Network
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import docker
-import psutil
+#import psutil
 import json
 
 c = docker.Client(base_url='unix://var/run/docker.sock',
@@ -38,7 +38,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps(self._get_host_memory()))
                 pass
             elif self.path.endswith("host/network"):
-                self.wfile.write(self._get_host_network())
+                self.wfile.write(json.dumps(self._get_host_network()))
                 pass
             elif self.path.endswith("host/info"):
                 self.wfile.write(json.dumps(self._get_host_info()))
@@ -72,7 +72,7 @@ class MyHandler(BaseHTTPRequestHandler):
         return ram.info()
 
     def _get_host_network(self):
-    return network.info()
+	return network.info()
 
     def _get_host_info(self):
         return sys.info()
