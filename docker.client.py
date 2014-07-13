@@ -23,8 +23,10 @@ class MyHandler(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'application/json')
             self.end_headers()
 
+            if self.path.
+
             if self.path.endswith("docker/containers"):
-                self.wfile.write(c.containers())
+                self.wfile.write(_get_containers())
                 pass
             elif self.path.endswith("docker/info"):
                 self.wfile.write(c.info())
@@ -49,6 +51,15 @@ class MyHandler(BaseHTTPRequestHandler):
             return
         except IOError:
 	       self.send_error(404,'File Not Found: %s' % self.path)
+
+    def _get_containers(self):
+        result = {}
+        array_containers = c.containers()
+        for c in array_containers:
+            cid = c['Id']
+            cjson = c.inspect_container(cid)
+            result[cid] = cjson
+        return result
 
     def _get_host_cpu(self):
         return cpu.info()

@@ -42,11 +42,11 @@ def get_metrics():
 
     if (time.time() - METRICS['time']) > METRICS_CACHE_MAX:
 
-	try:
-	    file = open(stat_file, 'r')
+        try:
+            file = open(stat_file, 'r')
     
-	except IOError:
-	    return 0
+        except IOError:
+            return 0
 
         # convert to dict
         metrics = {}
@@ -97,8 +97,8 @@ def get_delta(name):
     try:
       delta = (float(curr_metrics['data'][name][0]) - float(last_metrics['data'][name][0])) /(curr_metrics['time'] - last_metrics['time'])
       if delta < 0:
-	print name + " is less 0"
-	delta = 0
+        print name + " is less 0"
+        delta = 0
     except KeyError:
       delta = 0.0      
 
@@ -122,8 +122,8 @@ def get_softirq_delta(name):
     try:
       delta = (float(curr_metrics['data']['softirq'][index]) - float(last_metrics['data']['softirq'][index])) /(curr_metrics['time'] - last_metrics['time'])
       if delta < 0:
-	print name + " is less 0"
-	delta = 0
+        print name + " is less 0"
+        delta = 0
     except KeyError:
       delta = 0.0      
 
@@ -261,7 +261,7 @@ def metric_init(params):
     metric_map = {}
     
     for d in descriptors:
-	metric_name = d['name']
+        metric_name = d['name']
         metric_map[metric_name] = { "name": d['orig_name'], "units": d['units'] }
         
     return descriptors
