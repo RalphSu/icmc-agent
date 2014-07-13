@@ -4,11 +4,12 @@ import string,cgi,time
 from os import curdir, sep
 from sysinfo import System, CPU, RAM
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
-#import docker
+import docker
+import psutil
 
-#c = docker.Client(base_url='unix://var/run/docker.sock',
-#                  version='1.12',
-#                  timeout=10)
+c = docker.Client(base_url='unix://var/run/docker.sock',
+                  version='1.12',
+                  timeout=10)
 
 sys = System()
 cpu = CPU()
@@ -35,7 +36,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 self.wfile.write(self._get_host_memory())
                 pass
             elif self.path.endswith("host/network"):
-                self.wfile.write(self.path)
+                self.wfile.write(self._get_host_network())
                 pass
             elif self.path.endswith("host/info"):
                 self.wfile.write(self._get_host_info())
@@ -56,7 +57,7 @@ class MyHandler(BaseHTTPRequestHandler):
         return ram.info()
 
     def _get_host_network(self):
-        pass
+	return psutil.net_io_counters()
 
     def _get_host_info(self):
         return sys.info()
