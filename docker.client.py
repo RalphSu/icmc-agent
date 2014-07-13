@@ -44,9 +44,6 @@ class MyHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps(self._get_host_info()))
                 pass
             else:
-                self.send_response(404)
-                self.send_header('Content-type', 'application/json')
-                self.end_headers()
                 self.wfile.write("{ \"msg\" : \"api not supported!\"}")
             return
         except IOError:

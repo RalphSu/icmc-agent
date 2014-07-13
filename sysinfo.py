@@ -4,6 +4,7 @@ import os
 import re
 import platform
 import threading
+import time
 from datetime import timedelta
 
 class System(object):
@@ -112,6 +113,7 @@ class Network(object):
         params['target_device']='eth0'
         self.device=params['target_device']
         self.workThread = UpdateTrafficThread(params)
+	self.workThread.start()
 
     def info(self):
         result = {}
