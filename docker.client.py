@@ -15,6 +15,7 @@ c = docker.Client(base_url='unix://var/run/docker.sock',
 sys = System()
 cpu = CPU()
 ram = RAM()
+network=Network()
 
 class MyHandler(BaseHTTPRequestHandler):
 
@@ -71,7 +72,7 @@ class MyHandler(BaseHTTPRequestHandler):
         return ram.info()
 
     def _get_host_network(self):
-	return psutil.net_io_counters()
+    return network.info()
 
     def _get_host_info(self):
         return sys.info()

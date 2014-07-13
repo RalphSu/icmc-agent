@@ -104,6 +104,115 @@ class CPU(object):
         else:
             return True
 
+class Network(object):
+    def __init__():
+        params['refresh_rate']=10
+        params['target_device']='eth0'
+        self.device=params['target_device']
+        self.workThread = UpdateTrafficThread(params)
+
+    def info(self):
+        result = {}
+        key = 'recv_bytes_' + self.device
+        result[key] = self.workThread.metric_of(key)
+        key = 'recv_pkts_'+self.device
+        result[key] = self.workThread.metric_of(key)
+        key = 'recv_errs_' + self.device
+        result[key] = self.workThread.metric_of(key)
+        key = 'trans_bytes_' + self.device
+        result[key] = self.workThread.metric_of(key)
+        key = 'trans_pkts_' + self.device
+        result[key] = self.workThread.metric_of(key)
+        key = 'trans_errs_' +self.device
+        result[key] = self.workThread.metric_of(key)
+        return result
+
+_Lock = threading.Lock() # synchronization lock
+def dprint(f, *v):
+    pass
+
+class UpdateTrafficThread(threading.Thread):
+
+    __slots__ = ( 'proc_file' )
+
+    def __init__(self, params):
+        threading.Thread.__init__(self)
+        self.running       = False
+        self.shuttingdown  = False
+        self.refresh_rate = 10
+        if "refresh_rate" in params:
+            self.refresh_rate = int(params["refresh_rate"])
+
+        self.target_device = params["target_device"]
+        self.metric       = {}
+
+        self.proc_file = "/proc/net/dev"
+        self.stats_tab = {
+            "recv_bytes"  : 0,
+            "recv_pkts"   : 1,
+            "recv_errs"   : 2,
+            "recv_drops"  : 3,
+            "trans_bytes" : 8,
+            "trans_pkts"  : 9,
+            "trans_errs"  : 10,
+            "trans_drops" : 11,
+            }
+        self.stats      = {}
+        self.stats_prev = {}
+
+    def shutdown(self):
+        self.shuttingdown = True
+        if not self.running:
+            return
+        self.join()
+
+    def run(self):
+        self.running = True
+
+        while not self.shuttingdown:
+            _Lock.acquire()
+            self.update_metric()
+            _Lock.release()
+            time.sleep(self.refresh_rate)
+
+        self.running = False
+
+    def update_metric(self):
+        f = open(self.proc_file, "r")
+        for l in f:
+            a = l.split(":")
+            dev = a[0].lstrip()
+            if dev != self.target_device: continue
+
+            dprint("%s", ">>update_metric")
+            self.stats = {}
+            _stats = a[1].split()
+            for name, index in self.stats_tab.iteritems():
+                self.stats[name+'_'+self.target_device] = int(_stats[index])
+            self.stats["time"] = time.time()
+            dprint("%s", self.stats)
+
+            if "time" in self.stats_prev:
+                dprint("%s: %d = %d - %d", "DO DIFF", self.stats["time"]-self.stats_prev["time"], self.stats["time"], self.stats_prev["time"])
+                d = self.stats["time"] - self.stats_prev["time"]
+                for name, cur in self.stats.iteritems():
+                    self.metric[name] = float(cur - self.stats_prev[name])/d
+
+            self.stats_prev = self.stats.copy()
+            break
+
+        return
+
+    def metric_of(self, name):
+        val = 0
+        if name in self.metric:
+            _Lock.acquire()
+            val = self.metric[name]
+            _Lock.release()
+        return val
+
+
+
 def test():
     sys = System()
     print '::sys info:'
