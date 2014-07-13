@@ -48,6 +48,7 @@ class RAM(object):
 
 class CPU(object):
     PROC_CPU = '/proc/cpuinfo'
+    PROC_USAGE = '/proc/stat'
     PROCESSOR = 'processor\t:'
     INFO_KEY = ['model name', 'vendor_id', 'cpu mhz']
 
@@ -56,6 +57,24 @@ class CPU(object):
 
     def count(self):
         return self.cpufile.count(self.PROCESSOR)
+
+    def usage(self):
+    	''' TODO: use a backgroud thread periodically read stat file, calcualte based on comparison'''
+        statfile = open(self.PROC_USAGE)
+        # convert to dict
+	current = []
+        for line in statfile:
+            parts = re.split('\s+', line)
+	    if parts[0] == "cpu" :
+	        current = map(long, list(parts[1:len(parts) -1]))
+	        break
+	print current
+	if len(current) > 0 :
+	    idle = current[3]
+	    total = sum(current)
+    	    return 100 * float(total - idle) / float(total)
+	else :
+	    return "calculate error!"
 
     def info(self, brief=True):
         """
